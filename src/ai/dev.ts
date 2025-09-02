@@ -1,1 +1,5 @@
-// Flows will be imported for their side effects in this file.
+import { config } from 'dotenv';
+config();
+
+import '@/ai/flows/generate-ui-test-scenarios.ts';
+import '@/ai/flows/generate-api-test-cases.ts';
