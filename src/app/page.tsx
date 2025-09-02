@@ -3,8 +3,10 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import * as XLSX from 'xlsx';
 import { z } from 'zod';
 import { generateUITestScenarios, type GenerateUITestScenariosOutput } from '@/ai/flows/generate-ui-test-scenarios';
+import type { TestCase } from '@/ai/schemas/test-case';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -13,13 +15,55 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Clipboard, Upload, X } from 'lucide-react';
 import Image from 'next/image';
-import { downloadAsExcel, testCasesToText } from '@/lib/utils';
+import { testCasesToText } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 
 const formSchema = z.object({
   photoDataUri: z.string().min(1, { message: 'Please upload an image.' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters.' }),
 });
+
+function downloadAsExcel(filename: string, testCases: TestCase[]) {
+  if (!testCases || testCases.length === 0) {
+    console.error("No test cases provided to downloadAsExcel.");
+    const emptyWs = XLSX.utils.json_to_sheet([], {
+      header: ["Test Case ID", "Preconditions", "Steps to Reproduce", "Expected Results"]
+    });
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, emptyWs, "Test Cases");
+    XLSX.writeFile(wb, `${filename}.xlsx`);
+    return;
+  }
+
+  const worksheet = XLSX.utils.json_to_sheet(testCases);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Test Cases");
+
+  worksheet['!cols'] = [
+    { wch: 15 },
+    { wch: 40 },
+    { wch: 60 },
+    { wch: 60 },
+  ];
+
+  const range = XLSX.utils.decode_range(worksheet['!ref']!);
+  for (let R = range.s.r; R <= range.e.r; ++R) {
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const cell_address = { c: C, r: R };
+      const cell_ref = XLSX.utils.encode_cell(cell_address);
+      const cell = worksheet[cell_ref];
+
+      if (cell) {
+        if (!cell.s) cell.s = {};
+        if (!cell.s.alignment) cell.s.alignment = {};
+        cell.s.alignment.wrapText = true;
+        cell.s.alignment.vertical = 'top';
+      }
+    }
+  }
+
+  XLSX.writeFile(workbook, `${filename}.xlsx`);
+}
 
 export default function UITestPage() {
   const [loading, setLoading] = useState(false);
