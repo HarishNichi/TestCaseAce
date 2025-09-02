@@ -35,10 +35,10 @@ const prompt = ai.definePrompt({
   prompt: `You are an expert test case generator. Given an API endpoint, its HTTP method, and a sample payload, you will generate a comprehensive set of test cases, including normal cases, edge cases, and boundary conditions. The test cases should be detailed and cover all aspects of the API functionality. Generate the test cases in both English and Japanese.
 
 Please provide the output in a structured format for each language. For each test case, include:
-- Test Case ID
-- Preconditions
-- Steps to Reproduce
-- Expected Results
+- **Test Case ID:**
+- **Preconditions:**
+- **Steps to Reproduce:**
+- **Expected Results:**
 
 When generating the Japanese test cases, keep the English keywords for the structure (e.g., "**Test Case ID:**", "**Preconditions:**", etc.) and only translate the content.
 
