@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Clipboard, Upload, X } from 'lucide-react';
 import Image from 'next/image';
-import { downloadAsExcel } from '@/lib/utils';
+import { downloadAsExcel, testCasesToText } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 
 const formSchema = z.object({
@@ -88,6 +88,9 @@ export default function UITestPage() {
     navigator.clipboard.writeText(text);
     toast({ title: 'Copied to clipboard!' });
   };
+  
+  const englishText = results ? testCasesToText(results.englishTestScenarios) : '';
+  const japaneseText = results ? testCasesToText(results.japaneseTestScenarios) : '';
 
   return (
     <div className="container mx-auto max-w-5xl">
@@ -180,26 +183,26 @@ export default function UITestPage() {
               <CardHeader className="flex-row items-center justify-between">
                 <CardTitle>English Scenarios</CardTitle>
                 <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon" onClick={() => handleCopyToClipboard(results.englishTestScenarios)}>
+                  <Button variant="ghost" size="icon" onClick={() => handleCopyToClipboard(englishText)}>
                     <Clipboard className="h-4 w-4" />
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
-                <pre className="whitespace-pre-wrap font-sans text-sm">{results.englishTestScenarios}</pre>
+                <pre className="whitespace-pre-wrap font-sans text-sm">{englishText}</pre>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex-row items-center justify-between">
                 <CardTitle>Japanese Scenarios</CardTitle>
                  <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon" onClick={() => handleCopyToClipboard(results.japaneseTestScenarios)}>
+                  <Button variant="ghost" size="icon" onClick={() => handleCopyToClipboard(japaneseText)}>
                     <Clipboard className="h-4 w-4" />
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
-                <pre className="whitespace-pre-wrap font-sans text-sm">{results.japaneseTestScenarios}</pre>
+                <pre className="whitespace-pre-wrap font-sans text-sm">{japaneseText}</pre>
               </CardContent>
             </Card>
           </div>

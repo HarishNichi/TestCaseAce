@@ -18,9 +18,16 @@ const GenerateApiTestCasesInputSchema = z.object({
 });
 export type GenerateApiTestCasesInput = z.infer<typeof GenerateApiTestCasesInputSchema>;
 
+const TestCaseSchema = z.object({
+  "Test Case ID": z.string(),
+  "Preconditions": z.string(),
+  "Steps to Reproduce": z.string(),
+  "Expected Results": z.string(),
+});
+
 const GenerateApiTestCasesOutputSchema = z.object({
-  englishTestCases: z.string().describe('The generated API test cases in English, formatted with preconditions, steps, and expected results.'),
-  japaneseTestCases: z.string().describe('The generated API test cases in Japanese, formatted with preconditions, steps, and expected results.'),
+  englishTestCases: z.array(TestCaseSchema).describe('The generated API test cases in English.'),
+  japaneseTestCases: z.array(TestCaseSchema).describe('The generated API test cases in Japanese.'),
 });
 export type GenerateApiTestCasesOutput = z.infer<typeof GenerateApiTestCasesOutputSchema>;
 
@@ -34,25 +41,11 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateApiTestCasesOutputSchema},
   prompt: `You are an expert test case generator. Given an API endpoint, its HTTP method, and a sample payload, you will generate a comprehensive set of test cases, including normal cases, edge cases, and boundary conditions. The test cases should be detailed and cover all aspects of the API functionality. Generate the test cases in both English and Japanese.
 
-Please provide the output in a structured format for each language. For each test case, include:
-- **Test Case ID:**
-- **Preconditions:**
-- **Steps to Reproduce:**
-- **Expected Results:**
-
-When generating the Japanese test cases, keep the English keywords for the structure (e.g., "**Test Case ID:**", "**Preconditions:**", etc.) and only translate the content.
+Please provide the output as a JSON object with two keys: "englishTestCases" and "japaneseTestCases". Each key should contain an array of test case objects. Each test case object should have the following keys: "Test Case ID", "Preconditions", "Steps to Reproduce", and "Expected Results".
 
 API Endpoint: {{{apiEndpoint}}}
 API Method: {{{apiMethod}}}
 Payload: {{{payload}}}
-
-Here is an example of the desired format for one test case:
-
-**Test Case ID:** TC-001
-**Preconditions:** The user is authenticated.
-**Steps to Reproduce:**
-1. Send a {{{apiMethod}}} request to {{{apiEndpoint}}} with a valid payload.
-**Expected Results:** The API should return a 200 OK status code and the created resource.
 `,
 });
 

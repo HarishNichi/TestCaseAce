@@ -20,9 +20,16 @@ const GenerateUITestScenariosInputSchema = z.object({
 });
 export type GenerateUITestScenariosInput = z.infer<typeof GenerateUITestScenariosInputSchema>;
 
+const TestCaseSchema = z.object({
+  "Test Case ID": z.string(),
+  "Preconditions": z.string(),
+  "Steps to Reproduce": z.string(),
+  "Expected Results": z.string(),
+});
+
 const GenerateUITestScenariosOutputSchema = z.object({
-  englishTestScenarios: z.string().describe('UI test scenarios in English, formatted with preconditions, steps, and expected results.'),
-  japaneseTestScenarios: z.string().describe('UI test scenarios in Japanese, formatted with preconditions, steps, and expected results.'),
+  englishTestScenarios: z.array(TestCaseSchema).describe('UI test scenarios in English.'),
+  japaneseTestScenarios: z.array(TestCaseSchema).describe('UI test scenarios in Japanese.'),
 });
 export type GenerateUITestScenariosOutput = z.infer<typeof GenerateUITestScenariosOutputSchema>;
 
@@ -33,39 +40,25 @@ export async function generateUITestScenarios(input: GenerateUITestScenariosInpu
 const generateUITestScenariosPrompt = ai.definePrompt({
   name: 'generateUITestScenariosPrompt',
   input: {schema: GenerateUITestScenariosInputSchema},
-  output: {schema: z.object({ englishTestScenarios: z.string().describe('UI test scenarios in English, formatted with preconditions, steps, and expected results.') })},
+  output: {schema: z.object({ englishTestScenarios: z.array(TestCaseSchema).describe('UI test scenarios in English.') })},
   prompt: `You are an expert UI test case generator. Given a screenshot of a UI and a description of the UI, you will generate comprehensive UI test scenarios in English.
 
-Please provide the output in a structured format. For each test scenario, include:
-- **Test Case ID:**
-- **Preconditions:**
-- **Steps to Reproduce:**
-- **Expected Results:**
+Please provide the output as a JSON object with a single key: "englishTestScenarios". This key should contain an array of test case objects. Each test case object should have the following keys: "Test Case ID", "Preconditions", "Steps to Reproduce", and "Expected Results".
 
 Description: {{{description}}}
 Photo: {{media url=photoDataUri}}
-
-Here is an example of the desired format for one test case:
-
-**Test Case ID:** TC-UI-001
-**Preconditions:** The user is on the login page.
-**Steps to Reproduce:**
-1. Enter a valid email address in the email field.
-2. Enter a valid password in the password field.
-3. Click the "Sign In" button.
-**Expected Results:** The user should be successfully logged in and redirected to the dashboard.
 `,
 });
 
 const translateToJapanesePrompt = ai.definePrompt({
   name: 'translateToJapanesePrompt',
-  input: {schema: z.object({text: z.string()})},
-  output: {schema: z.object({translatedText: z.string()})},
+  input: {schema: z.object({englishTestScenarios: z.array(TestCaseSchema)})},
+  output: {schema: z.object({japaneseTestScenarios: z.array(TestCaseSchema)})},
   prompt: `Translate the following English test scenarios to Japanese.
   
-IMPORTANT: Maintain the same structured format and do not translate the keywords (e.g., "**Test Case ID:**", "**Preconditions:**", "**Steps to Reproduce:**", "**Expected Results:**"). Only translate the content for each section.
+IMPORTANT: Your output must be a JSON object with a single key "japaneseTestScenarios", which contains an array of translated test case objects. Each object must have the keys "Test Case ID", "Preconditions", "Steps to Reproduce", and "Expected Results". Keep the "Test Case ID" the same.
 
-{{{text}}}
+{{jsonStringify englishTestScenarios}}
 `,
 });
 
@@ -96,7 +89,7 @@ const generateUITestScenariosFlow = ai.defineFlow(
     let japaneseOutput;
     try {
       const {output} = await translateToJapanesePrompt({
-        text: englishOutput?.englishTestScenarios || '',
+        englishTestScenarios: englishOutput?.englishTestScenarios || [],
       });
       japaneseOutput = output;
     } catch(e) {
@@ -104,16 +97,16 @@ const generateUITestScenariosFlow = ai.defineFlow(
         prompt: translateToJapanesePrompt.prompt,
         model: 'googleai/gemini-pro',
         input: {
-          text: englishOutput?.englishTestScenarios || '',
+          englishTestScenarios: englishOutput?.englishTestScenarios || [],
         },
-        output: {schema: (translateToJapanesePrompt.input.schema as z.AnyZodObject).deepPartial().extend({}).parse({}).output}
+        output: {schema: (translateToJapanesePrompt.output.schema as z.AnyZodObject).deepPartial().extend({}).parse({}).output}
       });
       japaneseOutput = output as z.infer<typeof translateToJapanesePrompt.output.schema>;
     }
 
     return {
-      englishTestScenarios: englishOutput?.englishTestScenarios || '',
-      japaneseTestScenarios: japaneseOutput?.translatedText || '',
+      englishTestScenarios: englishOutput?.englishTestScenarios || [],
+      japaneseTestScenarios: japaneseOutput?.japaneseTestScenarios || [],
     };
   }
 );
