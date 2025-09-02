@@ -4,7 +4,7 @@
  *
  * - generateUITestScenarios - A function that generates UI test scenarios.
  * - GenerateUITestScenariosInput - The input type for the generateUITestScenarios function.
- * - GenerateUITestScenariosOutput - The return type for the generateUITestScenarios function.
+ * - GenerateUITestScenariosOutput - The return type for the generateUITestScenariosOutput function.
  */
 
 import {ai} from '@/ai/genkit';
@@ -21,8 +21,8 @@ const GenerateUITestScenariosInputSchema = z.object({
 export type GenerateUITestScenariosInput = z.infer<typeof GenerateUITestScenariosInputSchema>;
 
 const GenerateUITestScenariosOutputSchema = z.object({
-  englishTestScenarios: z.string().describe('UI test scenarios in English.'),
-  japaneseTestScenarios: z.string().describe('UI test scenarios in Japanese.'),
+  englishTestScenarios: z.string().describe('UI test scenarios in English as a numbered list.'),
+  japaneseTestScenarios: z.string().describe('UI test scenarios in Japanese as a numbered list.'),
 });
 export type GenerateUITestScenariosOutput = z.infer<typeof GenerateUITestScenariosOutputSchema>;
 
@@ -33,29 +33,26 @@ export async function generateUITestScenarios(input: GenerateUITestScenariosInpu
 const generateUITestScenariosPrompt = ai.definePrompt({
   name: 'generateUITestScenariosPrompt',
   input: {schema: GenerateUITestScenariosInputSchema},
-  output: {schema: GenerateUITestScenariosOutputSchema},
-  prompt: `You are an expert UI test case generator. Given a screenshot of a UI and a description of the UI, you will generate comprehensive UI test scenarios in both English and Japanese.
+  output: {schema: z.object({ englishTestScenarios: z.string().describe('UI test scenarios in English as a numbered list.') })},
+  prompt: `You are an expert UI test case generator. Given a screenshot of a UI and a description of the UI, you will generate comprehensive UI test scenarios in English. Please provide the output as a numbered list.
 
 Description: {{{description}}}
 Photo: {{media url=photoDataUri}}
 
 English Test Scenarios:
-{{englishTestScenarios}}
-
-Japanese Test Scenarios:
-{{japaneseTestScenarios}}`,
+`,
 });
 
 const translateToJapanesePrompt = ai.definePrompt({
   name: 'translateToJapanesePrompt',
   input: {schema: z.object({text: z.string()})},
   output: {schema: z.object({translatedText: z.string()})},
-  prompt: `Translate the following English text to Japanese:
+  prompt: `Translate the following English numbered list of test scenarios to a Japanese numbered list:
 
 {{{text}}}
 
 Japanese Translation:
-{{translatedText}}`,
+`,
 });
 
 const generateUITestScenariosFlow = ai.defineFlow(
@@ -65,11 +62,7 @@ const generateUITestScenariosFlow = ai.defineFlow(
     outputSchema: GenerateUITestScenariosOutputSchema,
   },
   async input => {
-    const {output: englishOutput} = await generateUITestScenariosPrompt({
-      ...input,
-      englishTestScenarios: '',
-      japaneseTestScenarios: '',
-    });
+    const {output: englishOutput} = await generateUITestScenariosPrompt(input);
 
     const {output: japaneseOutput} = await translateToJapanesePrompt({
       text: englishOutput?.englishTestScenarios || '',
