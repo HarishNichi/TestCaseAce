@@ -19,8 +19,8 @@ const GenerateApiTestCasesInputSchema = z.object({
 export type GenerateApiTestCasesInput = z.infer<typeof GenerateApiTestCasesInputSchema>;
 
 const GenerateApiTestCasesOutputSchema = z.object({
-  englishTestCases: z.string().describe('The generated API test cases in English as a numbered list.'),
-  japaneseTestCases: z.string().describe('The generated API test cases in Japanese as a numbered list.'),
+  englishTestCases: z.string().describe('The generated API test cases in English, formatted with preconditions, steps, and expected results.'),
+  japaneseTestCases: z.string().describe('The generated API test cases in Japanese, formatted with preconditions, steps, and expected results.'),
 });
 export type GenerateApiTestCasesOutput = z.infer<typeof GenerateApiTestCasesOutputSchema>;
 
@@ -34,21 +34,23 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateApiTestCasesOutputSchema},
   prompt: `You are an expert test case generator. Given an API endpoint, its HTTP method, and a sample payload, you will generate a comprehensive set of test cases, including normal cases, edge cases, and boundary conditions. The test cases should be detailed and cover all aspects of the API functionality. Generate the test cases in both English and Japanese.
 
-Please provide the output as a numbered list for each language.
+Please provide the output in a structured format for each language. For each test case, include:
+- Test Case ID
+- Preconditions
+- Steps to Reproduce
+- Expected Results
 
 API Endpoint: {{{apiEndpoint}}}
 API Method: {{{apiMethod}}}
 Payload: {{{payload}}}
 
-English Test Cases:
-1.
-2.
-3.
+Here is an example of the desired format for one test case:
 
-Japanese Test Cases:
-1.
-2.
-3.
+**Test Case ID:** TC-001
+**Preconditions:** The user is authenticated.
+**Steps to Reproduce:**
+1. Send a {{{apiMethod}}} request to {{{apiEndpoint}}} with a valid payload.
+**Expected Results:** The API should return a 200 OK status code and the created resource.
 `,
 });
 
