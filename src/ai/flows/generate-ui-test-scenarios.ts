@@ -53,7 +53,7 @@ Photo: {{media url=photoDataUri}}
 const translateToJapanesePrompt = ai.definePrompt({
   name: 'translateToJapanesePrompt',
   input: {schema: z.object({englishTestScenarios: z.array(TestCaseSchema)})},
-  output: {schema: z.object({japaneseTestScenarios: z.array(TestCaseSchema)})},
+  output: {schema: z.object({japaneseTestScenarios: z.array(TestCaseSchema).describe("The translated test scenarios in Japanese. IMPORTANT: Keep the 'Test Case ID' the same, and translate the values for 'Preconditions', 'Steps to Reproduce', and 'Expected Results'.")})},
   prompt: `Translate the following English test scenarios to Japanese.
   
 IMPORTANT: Your output must be a JSON object with a single key "japaneseTestScenarios", which contains an array of translated test case objects. Each object must have the keys "Test Case ID", "Preconditions", "Steps to Reproduce", and "Expected Results". Keep the "Test Case ID" the same.
@@ -99,7 +99,7 @@ const generateUITestScenariosFlow = ai.defineFlow(
         input: {
           englishTestScenarios: englishOutput?.englishTestScenarios || [],
         },
-        output: {schema: (translateToJapanesePrompt.output.schema as z.AnyZodObject).deepPartial().extend({}).parse({}).output}
+        output: {schema: translateToJapanesePrompt.output.schema}
       });
       japaneseOutput = output as z.infer<typeof translateToJapanesePrompt.output.schema>;
     }
