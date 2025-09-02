@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Download, Clipboard, Upload, X } from 'lucide-react';
 import Image from 'next/image';
-import { downloadAsCsv } from '@/lib/utils';
+import { downloadAsExcel } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
 
 const formSchema = z.object({
@@ -179,7 +179,7 @@ export default function UITestPage() {
                   <Button variant="ghost" size="icon" onClick={() => handleCopyToClipboard(results.englishTestScenarios)}>
                     <Clipboard className="h-4 w-4" />
                   </Button>
-                   <Button variant="outline" size="sm" onClick={() => downloadAsCsv('ui-test-scenarios-en', results.englishTestScenarios)}>
+                   <Button variant="outline" size="sm" onClick={() => downloadAsExcel('ui-test-scenarios-en', results.englishTestScenarios)}>
                     <Download className="mr-2 h-4 w-4" />
                     Download
                   </Button>
@@ -196,7 +196,7 @@ export default function UITestPage() {
                   <Button variant="ghost" size="icon" onClick={() => handleCopyToClipboard(results.japaneseTestScenarios)}>
                     <Clipboard className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => downloadAsCsv('ui-test-scenarios-jp', results.japaneseTestScenarios)}>
+                  <Button variant="outline" size="sm" onClick={() => downloadAsExcel('ui-test-scenarios-jp', results.japaneseTestScenarios)}>
                     <Download className="mr-2 h-4 w-4" />
                     Download
                   </Button>

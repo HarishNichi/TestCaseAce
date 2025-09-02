@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
+import * as XLSX from 'xlsx';
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -45,32 +46,23 @@ function parseTestCases(text: string) {
   return testCases;
 }
 
-
-function convertToCsv(data: { [key: string]: string }[]): string {
-    if (data.length === 0) {
-        return '';
-    }
-    const headers = ["Test Case ID", "Preconditions", "Steps to Reproduce", "Expected Results"];
-    const escapeCsvCell = (cell: string) => `"${(cell || '').replace(/"/g, '""')}"`;
-    
-    const headerRow = headers.map(escapeCsvCell).join(',');
-    const bodyRows = data.map(row => headers.map(header => escapeCsvCell(row[header])).join(','));
-    
-    return [headerRow, ...bodyRows].join('\n');
-}
-
-
-export function downloadAsCsv(filename: string, text: string) {
+export function downloadAsExcel(filename: string, text: string) {
   const testCases = parseTestCases(text);
-  const csvContent = convertToCsv(testCases);
 
-  const blob = new Blob([`\uFEFF${csvContent}`], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement("a");
-  
-  const url = URL.createObjectURL(blob);
-  link.setAttribute("href", url);
-  link.setAttribute("download", `${filename}.csv`);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+  const worksheet = XLSX.utils.json_to_sheet(testCases, {
+    header: ["Test Case ID", "Preconditions", "Steps to Reproduce", "Expected Results"]
+  });
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Test Cases");
+
+  // Adjust column widths
+  const columnWidths = [
+    { wch: 15 }, // Test Case ID
+    { wch: 40 }, // Preconditions
+    { wch: 60 }, // Steps to Reproduce
+    { wch: 60 }, // Expected Results
+  ];
+  worksheet["!cols"] = columnWidths;
+
+  XLSX.writeFile(workbook, `${filename}.xlsx`);
 }

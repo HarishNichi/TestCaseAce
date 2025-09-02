@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Download, Clipboard } from 'lucide-react';
-import { downloadAsCsv } from '@/lib/utils';
+import { downloadAsExcel } from '@/lib/utils';
 
 const formSchema = z.object({
   apiEndpoint: z.string().url({ message: 'Please enter a valid URL.' }),
@@ -159,7 +159,7 @@ export default function ApiTestPage() {
                   <Button variant="ghost" size="icon" onClick={() => handleCopyToClipboard(results.englishTestCases)}>
                     <Clipboard className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => downloadAsCsv('api-test-cases-en', results.englishTestCases)}>
+                  <Button variant="outline" size="sm" onClick={() => downloadAsExcel('api-test-cases-en', results.englishTestCases)}>
                     <Download className="mr-2 h-4 w-4" />
                     Download
                   </Button>
@@ -176,7 +176,7 @@ export default function ApiTestPage() {
                   <Button variant="ghost" size="icon" onClick={() => handleCopyToClipboard(results.japaneseTestCases)}>
                     <Clipboard className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => downloadAsCsv('api-test-cases-jp', results.japaneseTestCases)}>
+                  <Button variant="outline" size="sm" onClick={() => downloadAsExcel('api-test-cases-jp', results.japaneseTestCases)}>
                     <Download className="mr-2 h-4 w-4" />
                     Download
                   </Button>
