@@ -53,5 +53,19 @@ export function downloadAsExcel(filename: string, testCases: TestCase[]) {
   ];
   worksheet["!cols"] = columnWidths;
 
+  // Apply text wrapping to all cells
+  const range = XLSX.utils.decode_range(worksheet['!ref']!);
+  for (let R = range.s.r; R <= range.e.r; ++R) {
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const cell_address = {c:C, r:R};
+      const cell_ref = XLSX.utils.encode_cell(cell_address);
+      if (worksheet[cell_ref]) {
+        if (!worksheet[cell_ref].s) worksheet[cell_ref].s = {};
+        worksheet[cell_ref].s.alignment = { wrapText: true, vertical: 'top' };
+      }
+    }
+  }
+
+
   XLSX.writeFile(workbook, `${filename}.xlsx`);
 }
