@@ -131,7 +131,7 @@ export const generatePdfReport = ai.defineFlow(
     
     // Note: Puppeteer can be resource-intensive.
     const browser = await puppeteer.launch({ 
-      headless: "new",
+      headless: 'new',
       // The args are important for running in a sandboxed environment like Cloud Functions/Run
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
