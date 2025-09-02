@@ -23,7 +23,7 @@ const TestResultSchema = z.object({
   reasoning: z.string().describe('The reasoning for why the test passed or failed.'),
 });
 
-export const TestReportSchema = z.object({
+const TestReportSchema = z.object({
   apiEndpoint: z.string(),
   apiMethod: z.string(),
   generatedAt: z.string().describe('The ISO 8601 timestamp when the report was generated.'),
@@ -35,12 +35,12 @@ export const TestReportSchema = z.object({
   }),
   results: z.array(TestResultSchema),
 });
-export type TestReport = z.infer<typeof TestReportSchema>;
+type TestReport = z.infer<typeof TestReportSchema>;
 
-export const GeneratePdfOutputSchema = z.object({
+const GeneratePdfOutputSchema = z.object({
   pdfDataUri: z.string().describe("The generated PDF file as a data URI."),
 });
-export type GeneratePdfOutput = z.infer<typeof GeneratePdfOutputSchema>;
+type GeneratePdfOutput = z.infer<typeof GeneratePdfOutputSchema>;
 
 function generateHtml(report: TestReport): string {
   const getStatusChip = (status: 'PASSED' | 'FAILED' | 'ERROR') => {
