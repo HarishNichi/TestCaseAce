@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { TestCaseSchema } from '../schemas/test-case';
 
 const GenerateApiTestCasesInputSchema = z.object({
   apiEndpoint: z.string().describe('The API endpoint to test.'),
@@ -17,13 +18,6 @@ const GenerateApiTestCasesInputSchema = z.object({
   payload: z.string().describe('The sample payload for the API endpoint.'),
 });
 export type GenerateApiTestCasesInput = z.infer<typeof GenerateApiTestCasesInputSchema>;
-
-export const TestCaseSchema = z.object({
-  "Test Case ID": z.string(),
-  "Preconditions": z.string(),
-  "Steps to Reproduce": z.string(),
-  "Expected Results": z.string(),
-});
 
 const GenerateApiTestCasesOutputSchema = z.object({
   englishTestCases: z.array(TestCaseSchema).describe('The generated API test cases in English.'),

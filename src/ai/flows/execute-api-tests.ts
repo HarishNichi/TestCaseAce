@@ -10,7 +10,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { TestCaseSchema } from './generate-api-test-cases';
+import { TestCaseSchema } from '../schemas/test-case';
 
 export const ExecuteApiTestsInputSchema = z.object({
   apiEndpoint: z.string().describe('The API endpoint to test.'),
