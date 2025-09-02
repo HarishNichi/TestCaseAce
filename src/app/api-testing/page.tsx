@@ -57,13 +57,11 @@ export default function ApiTestPage() {
     }
   }
 
-  const handleCopyToClipboard = (text: string) => {
+  const handleCopyToClipboard = (cases: GenerateApiTestCasesOutput['englishTestCases']) => {
+    const text = testCasesToText(cases);
     navigator.clipboard.writeText(text);
     toast({ title: 'Copied to clipboard!' });
   };
-  
-  const englishText = results ? testCasesToText(results.englishTestCases) : '';
-  const japaneseText = results ? testCasesToText(results.japaneseTestCases) : '';
 
   return (
     <div className="container mx-auto max-w-5xl">
@@ -163,26 +161,46 @@ export default function ApiTestPage() {
               <CardHeader className="flex-row items-center justify-between">
                 <CardTitle>English Cases</CardTitle>
                 <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon" onClick={() => handleCopyToClipboard(englishText)}>
+                  <Button variant="ghost" size="icon" onClick={() => handleCopyToClipboard(results.englishTestCases)}>
                     <Clipboard className="h-4 w-4" />
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
-                <pre className="whitespace-pre-wrap font-code text-sm bg-muted p-4 rounded-md">{englishText}</pre>
+                <div className="space-y-4">
+                  {results.englishTestCases.map((tc, index) => (
+                    <div key={index} className="text-sm font-code whitespace-pre-wrap">
+                      <p><strong>Test Case ID:</strong> {tc['Test Case ID']}</p>
+                      <p><strong>Preconditions:</strong> {tc.Preconditions}</p>
+                      <p><strong>Steps to Reproduce:</strong></p>
+                      <p>{tc['Steps to Reproduce']}</p>
+                      <p><strong>Expected Results:</strong> {tc['Expected Results']}</p>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
             <Card>
               <CardHeader className="flex-row items-center justify-between">
                 <CardTitle>Japanese Cases</CardTitle>
                 <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon" onClick={() => handleCopyToClipboard(japaneseText)}>
+                  <Button variant="ghost" size="icon" onClick={() => handleCopyToClipboard(results.japaneseTestCases)}>
                     <Clipboard className="h-4 w-4" />
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
-                <pre className="whitespace-pre-wrap font-code text-sm bg-muted p-4 rounded-md">{japaneseText}</pre>
+                 <div className="space-y-4">
+                  {results.japaneseTestCases.map((tc, index) => (
+                    <div key={index} className="text-sm font-code whitespace-pre-wrap">
+                      <p><strong>Test Case ID:</strong> {tc['Test Case ID']}</p>
+                      <p><strong>Preconditions:</strong> {tc.Preconditions}</p>
+                      <p><strong>Steps to Reproduce:</strong></p>
+                      <p>{tc['Steps to Reproduce']}</p>
+                      <p><strong>Expected Results:</strong> {tc['Expected Results']}</p>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           </div>
