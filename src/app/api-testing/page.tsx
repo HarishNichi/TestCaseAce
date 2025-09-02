@@ -10,12 +10,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Download, Clipboard } from 'lucide-react';
 import { downloadAsCsv } from '@/lib/utils';
 
 const formSchema = z.object({
   apiEndpoint: z.string().url({ message: 'Please enter a valid URL.' }),
+  apiMethod: z.string().min(1, { message: 'Please select an API method.' }),
   payload: z.string().min(2, { message: 'Payload must be at least 2 characters (e.g., {}).' }),
 });
 
@@ -28,6 +30,7 @@ export default function ApiTestPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       apiEndpoint: '',
+      apiMethod: 'POST',
       payload: '',
     },
   });
@@ -60,7 +63,7 @@ export default function ApiTestPage() {
       <div className="space-y-4 mb-8">
         <h1 className="text-3xl font-bold tracking-tight">API Test Case Generator</h1>
         <p className="text-muted-foreground">
-          Provide an API endpoint and a sample payload. Our AI will generate a comprehensive set of test cases for you.
+          Provide an API endpoint, method, and a sample payload. Our AI will generate a comprehensive set of test cases for you.
         </p>
       </div>
 
@@ -68,19 +71,46 @@ export default function ApiTestPage() {
         <CardContent className="p-6">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="apiEndpoint"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>API Endpoint</FormLabel>
-                    <FormControl>
-                      <Input placeholder="https://api.example.com/v1/users" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <FormField
+                  control={form.control}
+                  name="apiEndpoint"
+                  render={({ field }) => (
+                    <FormItem className="md:col-span-2">
+                      <FormLabel>API Endpoint</FormLabel>
+                      <FormControl>
+                        <Input placeholder="https://api.example.com/v1/users" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="apiMethod"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Method</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a method" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="GET">GET</SelectItem>
+                          <SelectItem value="POST">POST</SelectItem>
+                          <SelectItem value="PUT">PUT</SelectItem>
+                          <SelectItem value="DELETE">DELETE</SelectItem>
+                          <SelectItem value="PATCH">PATCH</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
               <FormField
                 control={form.control}
                 name="payload"
@@ -95,7 +125,7 @@ export default function ApiTestPage() {
                       />
                     </FormControl>
                     <FormDescription>
-                      Provide a sample JSON payload for the request body.
+                      Provide a sample JSON payload for the request body. For GET requests, you can leave this empty or describe query parameters.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

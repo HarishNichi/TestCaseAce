@@ -13,6 +13,7 @@ import {z} from 'genkit';
 
 const GenerateApiTestCasesInputSchema = z.object({
   apiEndpoint: z.string().describe('The API endpoint to test.'),
+  apiMethod: z.string().describe('The HTTP method for the API endpoint (e.g., GET, POST, PUT).'),
   payload: z.string().describe('The sample payload for the API endpoint.'),
 });
 export type GenerateApiTestCasesInput = z.infer<typeof GenerateApiTestCasesInputSchema>;
@@ -31,11 +32,12 @@ const prompt = ai.definePrompt({
   name: 'generateApiTestCasesPrompt',
   input: {schema: GenerateApiTestCasesInputSchema},
   output: {schema: GenerateApiTestCasesOutputSchema},
-  prompt: `You are an expert test case generator. Given an API endpoint and a sample payload, you will generate a comprehensive set of test cases, including normal cases, edge cases, and boundary conditions. The test cases should be detailed and cover all aspects of the API functionality. Generate the test cases in both English and Japanese.
+  prompt: `You are an expert test case generator. Given an API endpoint, its HTTP method, and a sample payload, you will generate a comprehensive set of test cases, including normal cases, edge cases, and boundary conditions. The test cases should be detailed and cover all aspects of the API functionality. Generate the test cases in both English and Japanese.
 
 Please provide the output as a numbered list for each language.
 
 API Endpoint: {{{apiEndpoint}}}
+API Method: {{{apiMethod}}}
 Payload: {{{payload}}}
 
 English Test Cases:
