@@ -41,7 +41,7 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateApiTestCasesOutputSchema},
   prompt: `You are an expert test case generator. Given an API endpoint, its HTTP method, and a sample payload, you will generate a comprehensive set of test cases, including normal cases, edge cases, and boundary conditions. The test cases should be detailed and cover all aspects of the API functionality. Generate the test cases in both English and Japanese.
 
-Please provide the output as a JSON object with two keys: "englishTestCases" and "japaneseTestCases". Each key should contain an array of test case objects. Each test case object should have the following keys: "Test Case ID", "Preconditions", "Steps to Reproduce", and "Expected Results".
+Your output must be a JSON object with two keys: "englishTestCases" and "japaneseTestCases". Each key should contain an array of test case objects. Each test case object must have the following keys: "**Test Case ID**", "**Preconditions**", "**Steps to Reproduce**", and "**Expected Results**".
 
 API Endpoint: {{{apiEndpoint}}}
 API Method: {{{apiMethod}}}
@@ -60,14 +60,23 @@ const generateApiTestCasesFlow = ai.defineFlow(
       const {output} = await prompt(input);
       return output!;
     } catch (e) {
+      console.error("Fallback for generateApiTestCasesFlow", e);
       // If the default model fails, try with a fallback.
+      const fallbackPrompt = `You are an expert test case generator. Given an API endpoint, its HTTP method, and a sample payload, you will generate a comprehensive set of test cases, including normal cases, edge cases, and boundary conditions. The test cases should be detailed and cover all aspects of the API functionality. Generate the test cases in both English and Japanese.
+
+Your output must be a JSON object with two keys: "englishTestCases" and "japaneseTestCases". Each key should contain an array of test case objects. Each test case object must have the following keys: "**Test Case ID**", "**Preconditions**", "**Steps to Reproduce**", and "**Expected Results**".
+
+API Endpoint: ${input.apiEndpoint}
+API Method: ${input.apiMethod}
+Payload: ${input.payload}
+`;
+
       const {output} = await ai.generate({
-        prompt: prompt.prompt,
+        prompt: fallbackPrompt,
         model: 'googleai/gemini-pro',
-        input,
-        output: {schema: prompt.output.schema}
+        output: {schema: GenerateApiTestCasesOutputSchema}
       });
-      return output as GenerateApiTestCasesOutput;
+      return output!;
     }
   }
 );

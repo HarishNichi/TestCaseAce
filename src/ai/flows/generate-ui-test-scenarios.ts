@@ -46,7 +46,7 @@ const generateUITestScenariosPrompt = ai.definePrompt({
   output: {schema: EnglishTestCasesSchema},
   prompt: `You are an expert UI test case generator. Given a screenshot of a UI and a description of the UI, you will generate comprehensive UI test scenarios in English.
 
-Please provide the output as a JSON object with a single key: "englishTestScenarios". This key should contain an array of test case objects. Each test case object should have the following keys: "Test Case ID", "Preconditions", "Steps to Reproduce", and "Expected Results".
+Your output must be a JSON object with a single key: "englishTestScenarios". This key should contain an array of test case objects. Each test case object must have the following keys: "**Test Case ID**", "**Preconditions**", "**Steps to Reproduce**", and "**Expected Results**".
 
 Description: {{{description}}}
 Photo: {{media url=photoDataUri}}
@@ -77,6 +77,7 @@ const generateUITestScenariosFlow = ai.defineFlow(
       const {output} = await generateUITestScenariosPrompt(input);
       englishOutput = output;
     } catch (e) {
+      console.error("Fallback for generateUITestScenariosPrompt (English)", e);
       const {output} = await ai.generate({
         prompt: generateUITestScenariosPrompt.prompt,
         model: 'googleai/gemini-pro',
@@ -93,12 +94,17 @@ const generateUITestScenariosFlow = ai.defineFlow(
       });
       japaneseOutput = output;
     } catch(e) {
+      console.error("Fallback for translateToJapanesePrompt (Japanese)", e);
+      const scenariosToTranslate = englishOutput?.englishTestScenarios || [];
+      const fallbackPrompt = `Translate the following English test scenarios to Japanese.
+  
+IMPORTANT: Your output must be a JSON object with a single key "japaneseTestScenarios", which contains an array of translated test case objects. Each object must have the keys "Test Case ID", "Preconditions", "Steps to Reproduce", and "Expected Results". Keep the "Test Case ID" the same.
+
+${JSON.stringify(scenariosToTranslate)}
+`;
       const {output} = await ai.generate({
-        prompt: translateToJapanesePrompt.prompt,
+        prompt: fallbackPrompt,
         model: 'googleai/gemini-pro',
-        input: {
-          englishTestScenarios: englishOutput?.englishTestScenarios || [],
-        },
         output: {schema: JapaneseTestCasesSchema}
       });
       japaneseOutput = output as z.infer<typeof JapaneseTestCasesSchema>;
