@@ -41,8 +41,14 @@ API Method: {{{apiMethod}}}
 Payload: {{{payload}}}
 
 English Test Cases:
+1.
+2.
+3.
 
 Japanese Test Cases:
+1.
+2.
+3.
 `,
 });
 

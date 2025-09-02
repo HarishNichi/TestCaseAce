@@ -40,6 +40,9 @@ Description: {{{description}}}
 Photo: {{media url=photoDataUri}}
 
 English Test Scenarios:
+1. 
+2. 
+3. 
 `,
 });
 
@@ -52,6 +55,9 @@ const translateToJapanesePrompt = ai.definePrompt({
 {{{text}}}
 
 Japanese Translation:
+1.
+2.
+3.
 `,
 });
 
