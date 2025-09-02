@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as XLSX from 'xlsx';
 import { z } from 'zod';
 import { generateApiTestCases, type GenerateApiTestCasesOutput } from '@/ai/flows/generate-api-test-cases';
-import { executeApiTests, type TestReport } from '@/ai/flows/execute-api-tests';
+import { executeApiTests } from '@/ai/flows/execute-api-tests';
 import type { TestCase } from '@/ai/schemas/test-case';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,17 +24,41 @@ const formSchema = z.object({
   payload: z.string().min(2, { message: 'Payload must be at least 2 characters (e.g., {}).' }),
 });
 
+const TestCaseSchema = z.object({
+  "Test Case ID": z.string(),
+  "Preconditions": z.string(),
+  "Steps to Reproduce": z.string(),
+  "Expected Results": z.string(),
+});
+
 const ExecuteApiTestsInputSchema = z.object({
   apiEndpoint: z.string(),
   apiMethod: z.string(),
-  testCases: z.array(z.object({
-    "Test Case ID": z.string(),
-    "Preconditions": z.string(),
-    "Steps to Reproduce": z.string(),
-    "Expected Results": z.string(),
-  })),
+  testCases: z.array(TestCaseSchema),
 });
 export type ExecuteApiTestsInput = z.infer<typeof ExecuteApiTestsInputSchema>;
+
+const TestResultSchema = z.object({
+  testCase: TestCaseSchema,
+  status: z.enum(['PASSED', 'FAILED', 'ERROR']).describe('The result of the test.'),
+  actualResponse: z.string().describe('The actual response from the API.'),
+  reasoning: z.string().describe('The reasoning for why the test passed or failed.'),
+});
+
+const TestReportSchema = z.object({
+  apiEndpoint: z.string(),
+  apiMethod: z.string(),
+  generatedAt: z.string().describe('The ISO 8601 timestamp when the report was generated.'),
+  summary: z.object({
+    totalTests: z.number(),
+    passed: z.number(),
+    failed: z.number(),
+    errors: z.number(),
+  }),
+  results: z.array(TestResultSchema),
+});
+export type TestReport = z.infer<typeof TestReportSchema>;
+
 
 function downloadAsExcel(filename: string, testCases: TestCase[]) {
   if (!testCases || testCases.length === 0) {
@@ -101,27 +125,39 @@ function downloadReportAsExcel(filename: string, report: TestReport) {
 
   // Results Sheet
   const resultsData = report.results.map(r => ({
-    "Test Case ID": r.testCase["Test Case ID"],
     "Status": r.status,
+    "Test Case ID": r.testCase["Test Case ID"],
     "Reasoning": r.reasoning,
     "Preconditions": r.testCase.Preconditions,
     "Steps to Reproduce": r.testCase["Steps to Reproduce"],
     "Expected Results": r.testCase["Expected Results"],
     "Actual Response": r.actualResponse,
   }));
-  const resultsWs = XLSX.utils.json_to_sheet(resultsData);
+  const resultsWs = XLSX.utils.json_to_sheet(resultsData, {
+    header: [
+      "Status",
+      "Test Case ID",
+      "Reasoning",
+      "Preconditions",
+      "Steps to Reproduce",
+      "Expected Results",
+      "Actual Response"
+    ]
+  });
   resultsWs['!cols'] = [
-    { wch: 15 }, // Test Case ID
     { wch: 10 }, // Status
+    { wch: 15 }, // Test Case ID
     { wch: 50 }, // Reasoning
     { wch: 40 }, // Preconditions
     { wch: 60 }, // Steps
     { wch: 60 }, // Expected
     { wch: 80 }, // Actual
   ];
-  // Apply text wrapping and vertical alignment to all cells
+  // Apply text wrapping, vertical alignment, and conditional formatting
   const range = XLSX.utils.decode_range(resultsWs['!ref']!);
   for (let R = range.s.r; R <= range.e.r; ++R) {
+    let statusCell: XLSX.CellObject | undefined = undefined;
+
     for (let C = range.s.c; C <= range.e.c; ++C) {
       const cell_address = { c: C, r: R };
       const cell_ref = XLSX.utils.encode_cell(cell_address);
@@ -132,7 +168,33 @@ function downloadReportAsExcel(filename: string, report: TestReport) {
         if (!cell.s.alignment) cell.s.alignment = {};
         cell.s.alignment.wrapText = true;
         cell.s.alignment.vertical = 'top';
+
+        // Find the status cell in the current row (assuming it's the first column)
+        if (C === 0 && R > 0) { // C=0 is Status column, R>0 to skip header
+            statusCell = cell;
+        }
       }
+    }
+
+    // Apply conditional formatting based on status
+    if(statusCell) {
+        let fillColor = '';
+        if (statusCell.v === 'FAILED') {
+            fillColor = 'FFFFC7CE'; // Light Red
+        } else if (statusCell.v === 'ERROR') {
+            fillColor = 'FFFFEB9C'; // Light Yellow
+        }
+
+        if (fillColor) {
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+                const cell_ref = XLSX.utils.encode_cell({c: C, r: R});
+                const cell = resultsWs[cell_ref];
+                if(cell) {
+                    if(!cell.s) cell.s = {};
+                    cell.s.fill = { fgColor: { rgb: fillColor }, patternType: 'solid' };
+                }
+            }
+        }
     }
   }
 
