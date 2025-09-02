@@ -106,7 +106,7 @@ const generateUITestScenariosFlow = ai.defineFlow(
         input: {
           text: englishOutput?.englishTestScenarios || '',
         },
-        output: {schema: translateToJapanesePrompt.output.schema}
+        output: {schema: (translateToJapanesePrompt.input.schema as z.AnyZodObject).deepPartial().extend({}).parse({}).output}
       });
       japaneseOutput = output as z.infer<typeof translateToJapanesePrompt.output.schema>;
     }

@@ -13,27 +13,36 @@ function parseTestCases(text: string) {
   const caseBlocks = text.split(/(?=\*\*Test Case ID:\*\*)/).filter(block => block.trim());
 
   caseBlocks.forEach(block => {
-    const testCase: { [key: string]: string } = {
-      'Test Case ID': '',
-      'Preconditions': '',
-      'Steps to Reproduce': '',
-      'Expected Results': '',
-    };
+    const testCase: { [key: string]: string } = {};
+
+    const lines = block.split('\n').filter(line => line.trim());
+    let currentKey = '';
+    let content: string[] = [];
+
+    lines.forEach(line => {
+      const match = line.match(/^\*\*(.*?):\*\*\s*(.*)/);
+      if (match) {
+        if (currentKey) {
+          testCase[currentKey] = content.join('\n').trim();
+        }
+        currentKey = match[1];
+        content = [match[2]];
+      } else if (currentKey) {
+        content.push(line);
+      }
+    });
+
+    if (currentKey) {
+      testCase[currentKey] = content.join('\n').trim();
+    }
     
-    const idMatch = block.match(/\*\*Test Case ID:\*\*\s*([\s\S]*?)(?=\*\*Preconditions:\*\*)/);
-    if (idMatch) testCase['Test Case ID'] = idMatch[1].trim();
-
-    const preconditionsMatch = block.match(/\*\*Preconditions:\*\*\s*([\s\S]*?)(?=\*\*Steps to Reproduce:\*\*)/);
-    if (preconditionsMatch) testCase['Preconditions'] = preconditionsMatch[1].trim();
-    
-    const stepsMatch = block.match(/\*\*Steps to Reproduce:\*\*\s*([\s\S]*?)(?=\*\*Expected Results:\*\*)/);
-    if (stepsMatch) testCase['Steps to Reproduce'] = stepsMatch[1].trim();
-
-    const resultsMatch = block.match(/\*\*Expected Results:\*\*\s*([\s\S]*)/);
-    if (resultsMatch) testCase['Expected Results'] = resultsMatch[1].trim();
-
-    if (testCase['Test Case ID']) {
-        testCases.push(testCase);
+    if (Object.keys(testCase).length > 0 && testCase['Test Case ID']) {
+      testCases.push({
+        'Test Case ID': testCase['Test Case ID'] || '',
+        'Preconditions': testCase['Preconditions'] || '',
+        'Steps to Reproduce': testCase['Steps to Reproduce'] || '',
+        'Expected Results': testCase['Expected Results'] || '',
+      });
     }
   });
 
