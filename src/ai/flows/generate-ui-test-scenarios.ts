@@ -80,7 +80,7 @@ const generateUITestScenariosFlow = ai.defineFlow(
       console.error("Fallback for generateUITestScenariosPrompt (English)", e);
       const {output} = await ai.generate({
         prompt: generateUITestScenariosPrompt.prompt,
-        model: 'googleai/gemini-pro',
+        model: 'googleai/gemini-1.5-flash',
         input,
         output: {schema: EnglishTestCasesSchema}
       });
@@ -104,7 +104,7 @@ ${JSON.stringify(scenariosToTranslate)}
 `;
       const {output} = await ai.generate({
         prompt: fallbackPrompt,
-        model: 'googleai/gemini-pro',
+        model: 'googleai/gemini-1.5-flash',
         output: {schema: JapaneseTestCasesSchema}
       });
       japaneseOutput = output as z.infer<typeof JapaneseTestCasesSchema>;
