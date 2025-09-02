@@ -42,8 +42,17 @@ export default function ApiTestPage() {
       const result = await generateApiTestCases(values);
       setResults(result);
       if (result) {
-        downloadAsExcel('api-test-cases-en', result.englishTestCases);
-        downloadAsExcel('api-test-cases-jp', result.japaneseTestCases);
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        const day = now.getDate().toString().padStart(2, '0');
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const seconds = now.getSeconds().toString().padStart(2, '0');
+        const timestamp = `${year}${month}${day}-${hours}${minutes}${seconds}`;
+
+        downloadAsExcel(`api-test-cases-en-${timestamp}`, result.englishTestCases);
+        downloadAsExcel(`api-test-cases-jp-${timestamp}`, result.japaneseTestCases);
       }
     } catch (error) {
       console.error(error);

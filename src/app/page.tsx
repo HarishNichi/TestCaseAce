@@ -69,8 +69,17 @@ export default function UITestPage() {
       const result = await generateUITestScenarios(values);
       setResults(result);
       if (result) {
-        downloadAsExcel('ui-test-scenarios-en', result.englishTestScenarios);
-        downloadAsExcel('ui-test-scenarios-jp', result.japaneseTestScenarios);
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        const day = now.getDate().toString().padStart(2, '0');
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const seconds = now.getSeconds().toString().padStart(2, '0');
+        const timestamp = `${year}${month}${day}-${hours}${minutes}${seconds}`;
+
+        downloadAsExcel(`ui-test-scenarios-en-${timestamp}`, result.englishTestScenarios);
+        downloadAsExcel(`ui-test-scenarios-jp-${timestamp}`, result.japaneseTestScenarios);
       }
     } catch (error) {
       console.error(error);
