@@ -1,5 +1,3 @@
-'use server';
-
 import { z } from 'genkit';
 
 export const TestCaseSchema = z.object({
