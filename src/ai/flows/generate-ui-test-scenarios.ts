@@ -42,6 +42,8 @@ Please provide the output in a structured format. For each test scenario, includ
 - Steps to Reproduce
 - Expected Results
 
+When generating the Japanese test cases, keep the English keywords for the structure (e.g., "**Test Case ID:**", "**Preconditions:**", etc.) and only translate the content.
+
 Description: {{{description}}}
 Photo: {{media url=photoDataUri}}
 
@@ -74,14 +76,39 @@ const generateUITestScenariosFlow = ai.defineFlow(
     name: 'generateUITestScenariosFlow',
     inputSchema: GenerateUITestScenariosInputSchema,
     outputSchema: GenerateUITestScenariosOutputSchema,
-    retries: 3,
   },
   async input => {
-    const {output: englishOutput} = await generateUITestScenariosPrompt(input);
+    let englishOutput;
+    try {
+      const {output} = await generateUITestScenariosPrompt(input);
+      englishOutput = output;
+    } catch (e) {
+      const {output} = await ai.generate({
+        prompt: generateUITestScenariosPrompt.prompt,
+        model: 'googleai/gemini-pro',
+        input,
+        output: {schema: generateUITestScenariosPrompt.output.schema}
+      });
+      englishOutput = output as z.infer<typeof generateUITestScenariosPrompt.output.schema>;
+    }
 
-    const {output: japaneseOutput} = await translateToJapanesePrompt({
-      text: englishOutput?.englishTestScenarios || '',
-    });
+    let japaneseOutput;
+    try {
+      const {output} = await translateToJapanesePrompt({
+        text: englishOutput?.englishTestScenarios || '',
+      });
+      japaneseOutput = output;
+    } catch(e) {
+      const {output} = await ai.generate({
+        prompt: translateToJapanesePrompt.prompt,
+        model: 'googleai/gemini-pro',
+        input: {
+          text: englishOutput?.englishTestScenarios || '',
+        },
+        output: {schema: translateToJapanesePrompt.output.schema}
+      });
+      japaneseOutput = output as z.infer<typeof translateToJapanesePrompt.output.schema>;
+    }
 
     return {
       englishTestScenarios: englishOutput?.englishTestScenarios || '',

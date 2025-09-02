@@ -61,10 +61,20 @@ const generateApiTestCasesFlow = ai.defineFlow(
     name: 'generateApiTestCasesFlow',
     inputSchema: GenerateApiTestCasesInputSchema,
     outputSchema: GenerateApiTestCasesOutputSchema,
-    retries: 3,
   },
   async input => {
-    const {output} = await prompt(input);
-    return output!;
+    try {
+      const {output} = await prompt(input);
+      return output!;
+    } catch (e) {
+      // If the default model fails, try with a fallback.
+      const {output} = await ai.generate({
+        prompt: prompt.prompt,
+        model: 'googleai/gemini-pro',
+        input,
+        output: {schema: prompt.output.schema}
+      });
+      return output as GenerateApiTestCasesOutput;
+    }
   }
 );
