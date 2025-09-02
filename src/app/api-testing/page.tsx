@@ -5,8 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { generateApiTestCases, type GenerateApiTestCasesOutput } from '@/ai/flows/generate-api-test-cases';
-import { executeApiTests } from '@/ai/flows/execute-api-tests';
-import { generatePdfReport } from '@/ai/flows/generate-pdf-report';
+import { executeApiTests, type TestReport } from '@/ai/flows/execute-api-tests';
 import type { TestCase } from '@/ai/schemas/test-case';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,7 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Clipboard, TestTube2, FileText, Download } from 'lucide-react';
-import { downloadAsExcel } from '@/lib/utils';
+import { downloadAsExcel, downloadReportAsExcel } from '@/lib/utils';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 
 const formSchema = z.object({
@@ -102,20 +101,14 @@ export default function ApiTestPage() {
       };
 
       const testReport = await executeApiTests(testExecutionInput);
-      const pdfOutput = await generatePdfReport(testReport);
       
-      const link = document.createElement('a');
-      link.href = pdfOutput.pdfDataUri;
       const now = new Date();
       const timestamp = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}-${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}`;
-      link.download = `api-test-report-${timestamp}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      downloadReportAsExcel(`api-test-report-${timestamp}`, testReport);
 
       toast({
         title: 'Test Report Generated',
-        description: 'The PDF report has been downloaded.',
+        description: 'The Excel report has been downloaded.',
       });
 
     } catch (error) {
