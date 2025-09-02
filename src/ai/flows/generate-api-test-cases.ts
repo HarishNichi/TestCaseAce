@@ -40,6 +40,8 @@ Please provide the output in a structured format for each language. For each tes
 - Steps to Reproduce
 - Expected Results
 
+When generating the Japanese test cases, keep the English keywords for the structure (e.g., "**Test Case ID:**", "**Preconditions:**", etc.) and only translate the content.
+
 API Endpoint: {{{apiEndpoint}}}
 API Method: {{{apiMethod}}}
 Payload: {{{payload}}}

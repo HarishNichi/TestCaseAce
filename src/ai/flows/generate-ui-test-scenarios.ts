@@ -61,7 +61,9 @@ const translateToJapanesePrompt = ai.definePrompt({
   name: 'translateToJapanesePrompt',
   input: {schema: z.object({text: z.string()})},
   output: {schema: z.object({translatedText: z.string()})},
-  prompt: `Translate the following English test scenarios to Japanese, maintaining the same structured format (Test Case ID, Preconditions, Steps to Reproduce, Expected Results).
+  prompt: `Translate the following English test scenarios to Japanese.
+  
+IMPORTANT: Maintain the same structured format and do not translate the keywords (e.g., "Test Case ID", "Preconditions", "Steps to Reproduce", "Expected Results"). Only translate the content for each section.
 
 {{{text}}}
 `,
