@@ -81,7 +81,7 @@ function generateHtml(report: TestReport): string {
     <html>
     <head>
       <meta charset="UTF-8">
-      <title>API Test Report</title>
+      <title>API Test Report</title>      
       <style>
         body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; margin: 40px; color: #333; }
         .report-header { text-align: center; margin-bottom: 40px; }
@@ -131,7 +131,7 @@ export const generatePdfReport = ai.defineFlow(
     
     // Note: Puppeteer can be resource-intensive.
     const browser = await puppeteer.launch({ 
-      headless: true,
+      headless: "new",
       // The args are important for running in a sandboxed environment like Cloud Functions/Run
       args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
