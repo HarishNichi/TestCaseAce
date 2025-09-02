@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { generateApiTestCases, type GenerateApiTestCasesOutput } from '@/ai/flows/generate-api-test-cases';
-import { executeApiTests } from '@/ai/flows/execute-api-tests';
+import { executeApiTests, type TestReport } from '@/ai/flows/execute-api-tests';
 import { generatePdfReport } from '@/ai/flows/generate-pdf-report';
 import type { TestCase } from '@/ai/schemas/test-case';
 import { Button } from '@/components/ui/button';
@@ -15,9 +15,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Clipboard, TestTube2, FileText } from 'lucide-react';
+import { Loader2, Clipboard, TestTube2, FileText, Download } from 'lucide-react';
 import { downloadAsExcel } from '@/lib/utils';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 
 const formSchema = z.object({
   apiEndpoint: z.string().url({ message: 'Please enter a valid URL.' }),
@@ -108,20 +108,11 @@ export default function ApiTestPage() {
       const pdfOutput = await generatePdfReport(testReport);
       
       setPdfUrl(pdfOutput.pdfDataUri);
+      setIsPdfModalOpen(true); // Open the modal with the preview
 
-      const link = document.createElement('a');
-      link.href = pdfOutput.pdfDataUri;
-      const now = new Date();
-      const timestamp = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}-${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}`;
-      link.download = `api-test-report-${timestamp}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
       toast({
         title: 'Test Report Generated',
-        description: 'The PDF report has been downloaded.',
-        action: <Button variant="ghost" onClick={() => setIsPdfModalOpen(true)}><FileText className="mr-2" />View Report</Button>
+        description: 'The PDF report is ready for review.',
       });
 
     } catch (error) {
@@ -135,6 +126,18 @@ export default function ApiTestPage() {
       setTesting(false);
     }
   };
+
+  const handleDownloadPdf = () => {
+    if (!pdfUrl) return;
+    const link = document.createElement('a');
+    link.href = pdfUrl;
+    const now = new Date();
+    const timestamp = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}-${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}${now.getSeconds().toString().padStart(2, '0')}`;
+    link.download = `api-test-report-${timestamp}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
 
   const handleCopyToClipboard = (cases: TestCase[]) => {
     if (!cases || cases.length === 0) return;
@@ -303,20 +306,30 @@ export default function ApiTestPage() {
       </div>
 
       <Dialog open={isPdfModalOpen} onOpenChange={setIsPdfModalOpen}>
-        <DialogContent className="max-w-4xl h-[90vh]">
+        <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>API Test Report</DialogTitle>
           </DialogHeader>
-          {pdfUrl ? (
-            <iframe src={pdfUrl} className="w-full h-full border-0" title="API Test Report PDF" />
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <Loader2 className="h-8 w-8 animate-spin" />
-              <p className="ml-2">Loading PDF...</p>
-            </div>
-          )}
+          <div className="flex-1 min-h-0">
+            {pdfUrl ? (
+              <iframe src={pdfUrl} className="w-full h-full border-0" title="API Test Report PDF" />
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <Loader2 className="h-8 w-8 animate-spin" />
+                <p className="ml-2">Loading PDF...</p>
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button onClick={handleDownloadPdf} disabled={!pdfUrl}>
+              <Download className="mr-2 h-4 w-4" />
+              Download PDF
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>
   );
 }
+
+    
