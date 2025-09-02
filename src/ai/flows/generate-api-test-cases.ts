@@ -18,7 +18,7 @@ const GenerateApiTestCasesInputSchema = z.object({
 });
 export type GenerateApiTestCasesInput = z.infer<typeof GenerateApiTestCasesInputSchema>;
 
-const TestCaseSchema = z.object({
+export const TestCaseSchema = z.object({
   "Test Case ID": z.string(),
   "Preconditions": z.string(),
   "Steps to Reproduce": z.string(),
