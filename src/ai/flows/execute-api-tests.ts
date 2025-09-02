@@ -79,26 +79,24 @@ export const executeApiTests = ai.defineFlow(
 
     for (const testCase of input.testCases) {
       try {
-        // NOTE: This uses fetch() to call the user's API. This will only work for publicly accessible endpoints.
-        // It also assumes the payload for POST/PUT is in the "Steps to Reproduce" and is valid JSON.
-        let body;
+        let fetchOptions: RequestInit = {
+            method: input.apiMethod,
+            headers: { 'Content-Type': 'application/json' },
+        };
+        
         if (['POST', 'PUT', 'PATCH'].includes(input.apiMethod)) {
             try {
                 // A bit of a hack: try to find a JSON blob in the steps.
                 const jsonMatch = testCase['Steps to Reproduce'].match(/({.*})/s);
                 if (jsonMatch && jsonMatch[1]) {
-                    body = jsonMatch[1];
+                    fetchOptions.body = jsonMatch[1];
                 }
             } catch {
                 // Ignore if we can't parse a body, we'll send without it.
             }
         }
 
-        const response = await fetch(input.apiEndpoint, {
-            method: input.apiMethod,
-            headers: { 'Content-Type': 'application/json' },
-            body: body,
-        });
+        const response = await fetch(input.apiEndpoint, fetchOptions);
 
         const responseText = await response.text();
         const responseData = {
