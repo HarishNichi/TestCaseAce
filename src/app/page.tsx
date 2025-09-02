@@ -11,7 +11,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Download, Clipboard, Upload, X } from 'lucide-react';
+import { Loader2, Clipboard, Upload, X } from 'lucide-react';
 import Image from 'next/image';
 import { downloadAsExcel } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
@@ -68,6 +68,10 @@ export default function UITestPage() {
     try {
       const result = await generateUITestScenarios(values);
       setResults(result);
+      if (result) {
+        downloadAsExcel('ui-test-scenarios-en', result.englishTestScenarios);
+        downloadAsExcel('ui-test-scenarios-jp', result.japaneseTestScenarios);
+      }
     } catch (error) {
       console.error(error);
       toast({
@@ -90,7 +94,7 @@ export default function UITestPage() {
       <div className="space-y-4 mb-8">
         <h1 className="text-3xl font-bold tracking-tight">UI Test Scenario Generator</h1>
         <p className="text-muted-foreground">
-          Upload a screenshot of your UI and provide a brief description. Our AI will generate comprehensive test scenarios in both English and Japanese.
+          Upload a screenshot of your UI and provide a brief description. Our AI will generate comprehensive test scenarios and the Excel files will be downloaded automatically.
         </p>
       </div>
 
@@ -179,10 +183,6 @@ export default function UITestPage() {
                   <Button variant="ghost" size="icon" onClick={() => handleCopyToClipboard(results.englishTestScenarios)}>
                     <Clipboard className="h-4 w-4" />
                   </Button>
-                   <Button variant="outline" size="sm" onClick={() => downloadAsExcel('ui-test-scenarios-en', results.englishTestScenarios)}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Download
-                  </Button>
                 </div>
               </CardHeader>
               <CardContent>
@@ -195,10 +195,6 @@ export default function UITestPage() {
                  <div className="flex items-center gap-2">
                   <Button variant="ghost" size="icon" onClick={() => handleCopyToClipboard(results.japaneseTestScenarios)}>
                     <Clipboard className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => downloadAsExcel('ui-test-scenarios-jp', results.japaneseTestScenarios)}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Download
                   </Button>
                 </div>
               </CardHeader>

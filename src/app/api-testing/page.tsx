@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Download, Clipboard } from 'lucide-react';
+import { Loader2, Clipboard } from 'lucide-react';
 import { downloadAsExcel } from '@/lib/utils';
 
 const formSchema = z.object({
@@ -41,6 +41,10 @@ export default function ApiTestPage() {
     try {
       const result = await generateApiTestCases(values);
       setResults(result);
+      if (result) {
+        downloadAsExcel('api-test-cases-en', result.englishTestCases);
+        downloadAsExcel('api-test-cases-jp', result.japaneseTestCases);
+      }
     } catch (error) {
       console.error(error);
       toast({
@@ -63,7 +67,7 @@ export default function ApiTestPage() {
       <div className="space-y-4 mb-8">
         <h1 className="text-3xl font-bold tracking-tight">API Test Case Generator</h1>
         <p className="text-muted-foreground">
-          Provide an API endpoint, method, and a sample payload. Our AI will generate a comprehensive set of test cases for you.
+          Provide an API endpoint, method, and a sample payload. Our AI will generate a comprehensive set of test cases for you. The Excel files will be downloaded automatically.
         </p>
       </div>
 
@@ -159,10 +163,6 @@ export default function ApiTestPage() {
                   <Button variant="ghost" size="icon" onClick={() => handleCopyToClipboard(results.englishTestCases)}>
                     <Clipboard className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" size="sm" onClick={() => downloadAsExcel('api-test-cases-en', results.englishTestCases)}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Download
-                  </Button>
                 </div>
               </CardHeader>
               <CardContent>
@@ -175,10 +175,6 @@ export default function ApiTestPage() {
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" size="icon" onClick={() => handleCopyToClipboard(results.japaneseTestCases)}>
                     <Clipboard className="h-4 w-4" />
-                  </Button>
-                  <Button variant="outline" size="sm" onClick={() => downloadAsExcel('api-test-cases-jp', results.japaneseTestCases)}>
-                    <Download className="mr-2 h-4 w-4" />
-                    Download
                   </Button>
                 </div>
               </CardHeader>
