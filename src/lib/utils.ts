@@ -13,24 +13,25 @@ function parseTestCases(text: string) {
   caseBlocks.forEach(block => {
     const testCase: { [key: string]: string } = {};
     
+    // Re-add the separator to the start of the block for consistent matching
     const fullBlock = `**Test Case ID:**${block}`;
 
-    const idMatch = fullBlock.match(/\*\*Test Case ID:\*\*\s*(.*?)(?=\*\*Preconditions:\*\*|$)/);
+    const idMatch = fullBlock.match(/\*\*Test Case ID:\*\*\s*(.*?)\s*(?=\*\*Preconditions:\*\*|$)/s);
     if (idMatch) {
       testCase['Test Case ID'] = idMatch[1].trim();
     }
     
-    const preconditionsMatch = fullBlock.match(/\*\*Preconditions:\*\*\s*([\s\S]*?)(?=\*\*Steps to Reproduce:\*\*|$)/);
+    const preconditionsMatch = fullBlock.match(/\*\*Preconditions:\*\*\s*([\s\S]*?)\s*(?=\*\*Steps to Reproduce:\*\*|$)/s);
     if (preconditionsMatch) {
       testCase['Preconditions'] = preconditionsMatch[1].trim();
     }
 
-    const stepsMatch = fullBlock.match(/\*\*Steps to Reproduce:\*\*\s*([\s\S]*?)(?=\*\*Expected Results:\*\*|$)/);
+    const stepsMatch = fullBlock.match(/\*\*Steps to Reproduce:\*\*\s*([\s\S]*?)\s*(?=\*\*Expected Results:\*\*|$)/s);
     if (stepsMatch) {
       testCase['Steps to Reproduce'] = stepsMatch[1].trim();
     }
 
-    const resultsMatch = fullBlock.match(/\*\*Expected Results:\*\*\s*([\s\S]*)/);
+    const resultsMatch = fullBlock.match(/\*\*Expected Results:\*\*\s*([\s\S]*)/s);
     if (resultsMatch) {
       // This will capture everything until the next Test Case ID or end of string.
       const rawResult = resultsMatch[1];
@@ -45,6 +46,7 @@ function parseTestCases(text: string) {
 
   return testCases;
 }
+
 
 export function downloadAsExcel(filename: string, text: string) {
   const testCases = parseTestCases(text);
