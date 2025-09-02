@@ -49,6 +49,7 @@ const generateApiTestCasesFlow = ai.defineFlow(
     name: 'generateApiTestCasesFlow',
     inputSchema: GenerateApiTestCasesInputSchema,
     outputSchema: GenerateApiTestCasesOutputSchema,
+    retries: 3,
   },
   async input => {
     const {output} = await prompt(input);

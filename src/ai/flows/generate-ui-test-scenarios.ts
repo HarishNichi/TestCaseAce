@@ -60,6 +60,7 @@ const generateUITestScenariosFlow = ai.defineFlow(
     name: 'generateUITestScenariosFlow',
     inputSchema: GenerateUITestScenariosInputSchema,
     outputSchema: GenerateUITestScenariosOutputSchema,
+    retries: 3,
   },
   async input => {
     const {output: englishOutput} = await generateUITestScenariosPrompt(input);
