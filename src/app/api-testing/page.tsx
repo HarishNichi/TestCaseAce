@@ -150,31 +150,37 @@ export default function ApiTestPage() {
 
       {results && (
         <div className="mt-8">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">Generated Test Cases</h2>
-            <Button variant="outline" onClick={() => downloadAsCsv('api-test-cases', results.englishTestCases, results.japaneseTestCases)}>
-              <Download className="mr-2 h-4 w-4" />
-              Download CSV
-            </Button>
-          </div>
+          <h2 className="text-2xl font-bold mb-4">Generated Test Cases</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex-row items-center justify-between">
                 <CardTitle>English Cases</CardTitle>
-                <Button variant="ghost" size="icon" className="absolute top-4 right-4" onClick={() => handleCopyToClipboard(results.englishTestCases)}>
-                  <Clipboard className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="icon" onClick={() => handleCopyToClipboard(results.englishTestCases)}>
+                    <Clipboard className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => downloadAsCsv('api-test-cases-en', results.englishTestCases)}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Download
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <pre className="whitespace-pre-wrap font-code text-sm bg-muted p-4 rounded-md">{results.englishTestCases}</pre>
               </CardContent>
             </Card>
             <Card>
-              <CardHeader>
+              <CardHeader className="flex-row items-center justify-between">
                 <CardTitle>Japanese Cases</CardTitle>
-                <Button variant="ghost" size="icon" className="absolute top-4 right-4" onClick={() => handleCopyToClipboard(results.japaneseTestCases)}>
-                  <Clipboard className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="icon" onClick={() => handleCopyToClipboard(results.japaneseTestCases)}>
+                    <Clipboard className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => downloadAsCsv('api-test-cases-jp', results.japaneseTestCases)}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Download
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <pre className="whitespace-pre-wrap font-code text-sm bg-muted p-4 rounded-md">{results.japaneseTestCases}</pre>

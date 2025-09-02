@@ -170,31 +170,37 @@ export default function UITestPage() {
 
       {results && (
         <div className="mt-8">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">Generated Scenarios</h2>
-            <Button variant="outline" onClick={() => downloadAsCsv('ui-test-scenarios', results.englishTestScenarios, results.japaneseTestScenarios)}>
-              <Download className="mr-2 h-4 w-4" />
-              Download CSV
-            </Button>
-          </div>
+          <h2 className="text-2xl font-bold mb-4">Generated Scenarios</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex-row items-center justify-between">
                 <CardTitle>English Scenarios</CardTitle>
-                <Button variant="ghost" size="icon" className="absolute top-4 right-4" onClick={() => handleCopyToClipboard(results.englishTestScenarios)}>
-                  <Clipboard className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="icon" onClick={() => handleCopyToClipboard(results.englishTestScenarios)}>
+                    <Clipboard className="h-4 w-4" />
+                  </Button>
+                   <Button variant="outline" size="sm" onClick={() => downloadAsCsv('ui-test-scenarios-en', results.englishTestScenarios)}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Download
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <pre className="whitespace-pre-wrap font-sans text-sm">{results.englishTestScenarios}</pre>
               </CardContent>
             </Card>
             <Card>
-              <CardHeader>
+              <CardHeader className="flex-row items-center justify-between">
                 <CardTitle>Japanese Scenarios</CardTitle>
-                <Button variant="ghost" size="icon" className="absolute top-4 right-4" onClick={() => handleCopyToClipboard(results.japaneseTestScenarios)}>
-                  <Clipboard className="h-4 w-4" />
-                </Button>
+                 <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="icon" onClick={() => handleCopyToClipboard(results.japaneseTestScenarios)}>
+                    <Clipboard className="h-4 w-4" />
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => downloadAsCsv('ui-test-scenarios-jp', results.japaneseTestScenarios)}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Download
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <pre className="whitespace-pre-wrap font-sans text-sm">{results.japaneseTestScenarios}</pre>

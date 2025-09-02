@@ -5,26 +5,20 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
-export function downloadAsCsv(filename: string, englishText: string, japaneseText: string) {
-  const englishLines = englishText.split('\n').filter(line => line.trim() !== '');
-  const japaneseLines = japaneseText.split('\n').filter(line => line.trim() !== '');
+export function downloadAsCsv(filename: string, text: string) {
+  const lines = text.split('\n').filter(line => line.trim() !== '');
 
-  const header = ['English Scenarios', 'Japanese Scenarios'];
+  // Determine header based on filename
+  const header = [filename.includes('-en') ? 'English Scenarios' : 'Japanese Scenarios'];
   
-  const maxLength = Math.max(englishLines.length, japaneseLines.length);
-  const rows = [];
+  const rows = lines.map(line => `"${line.replace(/"/g, '""')}"`);
 
-  for (let i = 0; i < maxLength; i++) {
-    // Wrap each cell in quotes and escape double quotes within the cell
-    const englishCell = englishLines[i] ? `"${englishLines[i].replace(/"/g, '""')}"` : '""';
-    const japaneseCell = japaneseLines[i] ? `"${japaneseLines[i].replace(/"/g, '""')}"` : '""';
-    rows.push([englishCell, japaneseCell]);
-  }
-
-  const csvContent = header.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
-
+  const csvContent = header.join(",") + "\n" + rows.join("\n");
+  
+  // Use a Blob to ensure UTF-8 encoding is handled correctly, especially for Japanese characters
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement("a");
+  
   const url = URL.createObjectURL(blob);
   link.setAttribute("href", url);
   link.setAttribute("download", `${filename}.csv`);
