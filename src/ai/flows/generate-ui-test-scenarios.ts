@@ -37,12 +37,10 @@ const generateUITestScenariosPrompt = ai.definePrompt({
   prompt: `You are an expert UI test case generator. Given a screenshot of a UI and a description of the UI, you will generate comprehensive UI test scenarios in English.
 
 Please provide the output in a structured format. For each test scenario, include:
-- Test Case ID
-- Preconditions
-- Steps to Reproduce
-- Expected Results
-
-When generating the Japanese test cases, keep the English keywords for the structure (e.g., "**Test Case ID:**", "**Preconditions:**", etc.) and only translate the content.
+- **Test Case ID:**
+- **Preconditions:**
+- **Steps to Reproduce:**
+- **Expected Results:**
 
 Description: {{{description}}}
 Photo: {{media url=photoDataUri}}
@@ -65,7 +63,7 @@ const translateToJapanesePrompt = ai.definePrompt({
   output: {schema: z.object({translatedText: z.string()})},
   prompt: `Translate the following English test scenarios to Japanese.
   
-IMPORTANT: Maintain the same structured format and do not translate the keywords (e.g., "Test Case ID", "Preconditions", "Steps to Reproduce", "Expected Results"). Only translate the content for each section.
+IMPORTANT: Maintain the same structured format and do not translate the keywords (e.g., "**Test Case ID:**", "**Preconditions:**", "**Steps to Reproduce:**", "**Expected Results:**"). Only translate the content for each section.
 
 {{{text}}}
 `,
@@ -76,6 +74,9 @@ const generateUITestScenariosFlow = ai.defineFlow(
     name: 'generateUITestScenariosFlow',
     inputSchema: GenerateUITestScenariosInputSchema,
     outputSchema: GenerateUITestScenariosOutputSchema,
+    config: {
+      retries: 3
+    }
   },
   async input => {
     let englishOutput;
