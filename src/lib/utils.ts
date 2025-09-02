@@ -21,13 +21,12 @@ export function downloadAsCsv(filename: string, englishText: string, japaneseTex
     rows.push([englishCell, japaneseCell]);
   }
 
-  let csvContent = "data:text/csv;charset=utf-8," 
-    + header.join(",") + "\n" 
-    + rows.map(e => e.join(",")).join("\n");
+  const csvContent = header.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
 
-  const encodedUri = encodeURI(csvContent);
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
   link.setAttribute("download", `${filename}.csv`);
   document.body.appendChild(link);
   link.click();
