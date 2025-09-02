@@ -4,15 +4,13 @@
  * @fileOverview Executes API test cases and generates a report.
  *
  * - executeApiTests - A function that runs API tests.
- * - ExecuteApiTestsInput - The input type for the executeApiTests function.
- * - TestReport - The return type for the executeApiTests function.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { TestCaseSchema } from '../schemas/test-case';
 
-export const ExecuteApiTestsInputSchema = z.object({
+const ExecuteApiTestsInputSchema = z.object({
   apiEndpoint: z.string().describe('The API endpoint to test.'),
   apiMethod: z.string().describe('The HTTP method for the API endpoint (e.g., GET, POST, PUT).'),
   testCases: z.array(TestCaseSchema).describe('The test cases to execute.'),
@@ -26,7 +24,7 @@ const TestResultSchema = z.object({
   reasoning: z.string().describe('The reasoning for why the test passed or failed.'),
 });
 
-export const TestReportSchema = z.object({
+const TestReportSchema = z.object({
   apiEndpoint: z.string(),
   apiMethod: z.string(),
   generatedAt: z.string().describe('The ISO 8601 timestamp when the report was generated.'),

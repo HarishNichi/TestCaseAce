@@ -9,7 +9,33 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import puppeteer from 'puppeteer';
-import { TestReportSchema, type TestReport } from './execute-api-tests';
+import type { TestCase } from '@/ai/schemas/test-case';
+
+const TestResultSchema = z.object({
+  testCase: z.object({
+    "Test Case ID": z.string(),
+    "Preconditions": z.string(),
+    "Steps to Reproduce": z.string(),
+    "Expected Results": z.string(),
+  }),
+  status: z.enum(['PASSED', 'FAILED', 'ERROR']).describe('The result of the test.'),
+  actualResponse: z.string().describe('The actual response from the API.'),
+  reasoning: z.string().describe('The reasoning for why the test passed or failed.'),
+});
+
+export const TestReportSchema = z.object({
+  apiEndpoint: z.string(),
+  apiMethod: z.string(),
+  generatedAt: z.string().describe('The ISO 8601 timestamp when the report was generated.'),
+  summary: z.object({
+    totalTests: z.number(),
+    passed: z.number(),
+    failed: z.number(),
+    errors: z.number(),
+  }),
+  results: z.array(TestResultSchema),
+});
+export type TestReport = z.infer<typeof TestReportSchema>;
 
 export const GeneratePdfOutputSchema = z.object({
   pdfDataUri: z.string().describe("The generated PDF file as a data URI."),

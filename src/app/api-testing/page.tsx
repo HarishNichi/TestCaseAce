@@ -5,9 +5,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { generateApiTestCases, type GenerateApiTestCasesOutput } from '@/ai/flows/generate-api-test-cases';
-import { executeApiTests, type ExecuteApiTestsInput } from '@/ai/flows/execute-api-tests';
+import { executeApiTests } from '@/ai/flows/execute-api-tests';
 import { generatePdfReport } from '@/ai/flows/generate-pdf-report';
-import type { TestCaseSchema as TestCase } from '@/ai/schemas/test-case';
+import type { TestCase } from '@/ai/schemas/test-case';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -24,6 +24,18 @@ const formSchema = z.object({
   apiMethod: z.string().min(1, { message: 'Please select an API method.' }),
   payload: z.string().min(2, { message: 'Payload must be at least 2 characters (e.g., {}).' }),
 });
+
+const ExecuteApiTestsInputSchema = z.object({
+  apiEndpoint: z.string(),
+  apiMethod: z.string(),
+  testCases: z.array(z.object({
+    "Test Case ID": z.string(),
+    "Preconditions": z.string(),
+    "Steps to Reproduce": z.string(),
+    "Expected Results": z.string(),
+  })),
+});
+export type ExecuteApiTestsInput = z.infer<typeof ExecuteApiTestsInputSchema>;
 
 export default function ApiTestPage() {
   const [loading, setLoading] = useState(false);
