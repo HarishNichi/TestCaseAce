@@ -90,7 +90,7 @@ Description: ${input.description}
           {text: fallbackPrompt},
           {media: {url: input.photoDataUri}}
         ],
-        model: 'googleai/gemini-pro',
+        model: 'googleai/gemini-2.5-flash',
         output: {schema: EnglishTestCasesSchema}
       });
       englishOutput = output as z.infer<typeof EnglishTestCasesSchema>;
@@ -113,7 +113,7 @@ ${JSON.stringify(scenariosToTranslate)}
 `;
       const {output} = await ai.generate({
         prompt: fallbackPrompt,
-        model: 'googleai/gemini-pro',
+        model: 'googleai/gemini-2.5-flash',
         output: {schema: JapaneseTestCasesSchema}
       });
       japaneseOutput = output as z.infer<typeof JapaneseTestCasesSchema>;
