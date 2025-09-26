@@ -67,7 +67,7 @@ Payload: ${input.payload}
 
       const {output} = await ai.generate({
         prompt: fallbackPrompt,
-        model: 'googleai/gemini-1.5-flash-latest',
+        model: 'googleai/gemini-pro',
         output: {schema: GenerateApiTestCasesOutputSchema}
       });
       return output!;
