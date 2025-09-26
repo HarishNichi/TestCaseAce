@@ -78,10 +78,19 @@ const generateUITestScenariosFlow = ai.defineFlow(
       englishOutput = output;
     } catch (e) {
       console.error("Fallback for generateUITestScenariosPrompt (English)", e);
+      const fallbackPrompt = `You are an expert UI test case generator. Given a screenshot of a UI and a description of the UI, you will generate comprehensive UI test scenarios in English.
+
+Your output must be a JSON object with a single key: "englishTestScenarios". This key should contain an array of test case objects. Each test case object must have the following keys: "**Test Case ID**", "**Preconditions**", "**Steps to Reproduce**", and "**Expected Results**".
+
+Description: ${input.description}
+`;
+
       const {output} = await ai.generate({
-        prompt: generateUITestScenariosPrompt.prompt,
+        prompt: [
+          {text: fallbackPrompt},
+          {media: {url: input.photoDataUri}}
+        ],
         model: 'googleai/gemini-1.5-flash',
-        input,
         output: {schema: EnglishTestCasesSchema}
       });
       englishOutput = output as z.infer<typeof EnglishTestCasesSchema>;
